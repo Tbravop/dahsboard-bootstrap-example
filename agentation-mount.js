@@ -1,38 +1,36 @@
 // ============================================================================
 // Agentation Visual Feedback Toolbar Mount
-// Works both on localhost (with MCP sync) and on GitHub Pages (standalone)
+// Disabled on GitHub Pages / production; only loads on localhost
 // ============================================================================
 
-window.process = window.process || { env: { NODE_ENV: 'development' } };
+const isLocal =
+  window.location.hostname === 'localhost' ||
+  window.location.hostname === '127.0.0.1';
 
-import { createElement } from 'react';
-import { createRoot } from 'react-dom/client';
-import { Agentation } from 'agentation';
+if (isLocal) {
+  window.process = window.process || { env: { NODE_ENV: 'development' } };
 
-function mountAgentationToolbar() {
-  let hostEl = document.getElementById('agentation-host');
-  if (!hostEl) {
-    hostEl = document.createElement('div');
-    hostEl.id = 'agentation-host';
-    document.body.appendChild(hostEl);
-  }
+  Promise.all([
+    import('react'),
+    import('react-dom/client'),
+    import('agentation')
+  ]).then(([{ createElement }, { createRoot }, { Agentation }]) => {
+    let hostEl = document.getElementById('agentation-host');
+    if (!hostEl) {
+      hostEl = document.createElement('div');
+      hostEl.id = 'agentation-host';
+      document.body.appendChild(hostEl);
+    }
 
-  const isLocal =
-    window.location.hostname === 'localhost' ||
-    window.location.hostname === '127.0.0.1';
-
-  const root = createRoot(hostEl);
-  root.render(
-    createElement(Agentation, {
-      endpoint: isLocal ? 'http://localhost:4747' : undefined,
-      appName: document.title || 'Helpdesk Dashboard',
-      identifyingAttributes: ['data-attr', 'data-testid', 'data-qa', 'id']
-    })
-  );
-}
-
-if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', mountAgentationToolbar);
-} else {
-  mountAgentationToolbar();
+    const root = createRoot(hostEl);
+    root.render(
+      createElement(Agentation, {
+        endpoint: 'http://localhost:4747',
+        appName: document.title || 'Helpdesk Dashboard',
+        identifyingAttributes: ['data-attr', 'data-testid', 'data-qa', 'id']
+      })
+    );
+  }).catch(() => {
+    // Ignore if agentation is not needed
+  });
 }
