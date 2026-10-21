@@ -1,0 +1,580 @@
+<!doctype html>
+<html lang="es" data-bs-theme="light">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Tablero de Soporte Técnico (Helpdesk / Customer Support) — Bootstrap 6</title>
+
+  <!-- Polyfill process.env e Import Map para Agentation + React 18 -->
+  <script>window.process = { env: { NODE_ENV: "development" } };</script>
+  <script type="importmap">
+  {
+    "imports": {
+      "react": "https://esm.sh/react@18.3.1",
+      "react/jsx-runtime": "https://esm.sh/react@18.3.1/jsx-runtime",
+      "react-dom": "https://esm.sh/react-dom@18.3.1",
+      "react-dom/client": "https://esm.sh/react-dom@18.3.1/client",
+      "agentation": "/node_modules/agentation/dist/index.mjs"
+    }
+  }
+  </script>
+
+  <!-- Bootstrap 6.0.0-alpha.1 CSS (Official CDN + SRI from bootstrap-v6-install skill) -->
+  <link
+    href="https://cdn.jsdelivr.net/npm/bootstrap@6.0.0-alpha.1/dist/css/bootstrap.min.css"
+    rel="stylesheet"
+    integrity="sha384-B/GM4XqrwHnWXNOWMbloTmrYXZg10cakYGmpfsR/bbzQ6JAJI4ihuyADKLnBgrCe"
+    crossorigin="anonymous">
+
+  <!-- Bootstrap Icons -->
+  <link
+    href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"
+    rel="stylesheet">
+
+  <!-- Custom Layer Styles -->
+  <link href="./styles.css" rel="stylesheet">
+</head>
+<body>
+
+  <!-- ========================================================================
+       BARRA SUPERIOR EJECUTIVA + FILTROS Y SEGMENTADORES (SLICERS)
+       ======================================================================== -->
+  <header class="sticky-top bg-body border-bottom py-3 px-4">
+    <div class="container-fluid">
+      <div class="d-flex flex-wrap align-items-center justify-content-between gap-3">
+
+        <!-- Identidad del Tablero -->
+        <div class="d-flex align-items-center gap-3">
+          <div class="kpi-icon-box theme-primary">
+            <i class="bi bi-headset fs-lg"></i>
+          </div>
+          <div>
+            <div class="d-flex align-items-center gap-2">
+              <h1 class="fs-md fw-bold mb-0">Helpdesk Operations Center</h1>
+              <span class="badge badge-subtle theme-primary">SaaS B2B · IT Ops</span>
+              <span class="badge badge-subtle theme-danger d-inline-flex align-items-center gap-1" id="liveBreachBadge">
+                <span class="live-dot"></span>
+                <span id="headerBreachCount">0 SLA Vencidos</span>
+              </span>
+            </div>
+            <p class="fs-xs fg-secondary mb-0">
+              Monitoreo en tiempo real de FRT, MTTR, FCR, CSAT y cumplimiento de SLA
+            </p>
+          </div>
+        </div>
+
+        <!-- Controles Globales y Slicers Rápidos -->
+        <div class="d-flex flex-wrap align-items-center gap-2">
+
+          <!-- Slicer 1: Rango de Fechas -->
+          <div class="d-flex align-items-center gap-1">
+            <label for="filterPeriod" class="visually-hidden">Periodo</label>
+            <select id="filterPeriod" class="form-control form-control-sm w-auto">
+              <option value="all">📅 Todo el histórico (14 días)</option>
+              <option value="7d" selected>📅 Últimos 7 días</option>
+              <option value="3d">📅 Últimos 3 días</option>
+              <option value="today">📅 Últimas 24 horas</option>
+            </select>
+          </div>
+
+          <!-- Slicer 2: Prioridad -->
+          <div>
+            <label for="filterPriority" class="visually-hidden">Prioridad</label>
+            <select id="filterPriority" class="form-control form-control-sm w-auto">
+              <option value="all" selected>⚡ Prioridad: Todas</option>
+              <option value="P1 - Crítica">🔴 P1 - Crítica</option>
+              <option value="P2 - Alta">🟠 P2 - Alta</option>
+              <option value="P3 - Media">🔵 P3 - Media</option>
+              <option value="P4 - Baja">⚪ P4 - Baja</option>
+            </select>
+          </div>
+
+          <!-- Slicer 3: Nivel de Soporte -->
+          <div>
+            <label for="filterTier" class="visually-hidden">Nivel de Soporte</label>
+            <select id="filterTier" class="form-control form-control-sm w-auto">
+              <option value="all" selected>👥 Nivel: Todos (T1–T3)</option>
+              <option value="Tier 1">Tier 1 (Frontline)</option>
+              <option value="Tier 2">Tier 2 (Especialistas)</option>
+              <option value="Tier 3 - Ingeniería">Tier 3 (Ingeniería)</option>
+            </select>
+          </div>
+
+          <!-- Slicer 4: Canal de Entrada -->
+          <div>
+            <label for="filterChannel" class="visually-hidden">Canal de Entrada</label>
+            <select id="filterChannel" class="form-control form-control-sm w-auto">
+              <option value="all" selected>📡 Canal: Todos</option>
+              <option value="Portal Web">Portal Web</option>
+              <option value="Chat en Vivo">Chat en Vivo</option>
+              <option value="Email">Email</option>
+              <option value="Teléfono">Teléfono</option>
+              <option value="Slack / Teams">Slack / Teams</option>
+              <option value="API">API</option>
+            </select>
+          </div>
+
+          <!-- Slicer 5: Estado del SLA (Toggle Buttons de Bootstrap 6) -->
+          <div class="btn-group" role="group" aria-label="Filtro de estado SLA">
+            <label class="btn-check btn-outline btn-sm theme-secondary">
+              <input type="radio" name="slaFilter" value="all" autocomplete="off" checked>
+              Todos
+            </label>
+            <label class="btn-check btn-outline btn-sm theme-warning">
+              <input type="radio" name="slaFilter" value="risk" autocomplete="off">
+              En Riesgo
+            </label>
+            <label class="btn-check btn-outline btn-sm theme-danger">
+              <input type="radio" name="slaFilter" value="breached" autocomplete="off">
+              SLA Vencido
+            </label>
+          </div>
+
+          <!-- Botón para abrir Drawer de Filtros Avanzados y Diccionario de Datos -->
+          <button
+            type="button"
+            class="btn-subtle btn-sm theme-primary"
+            data-bs-toggle="drawer"
+            data-bs-target="#advancedFilterDrawer"
+            aria-label="Más filtros y esquema de datos">
+            <i class="bi bi-sliders2 me-1"></i>Filtros / Esquema
+          </button>
+
+          <!-- Exportar CSV -->
+          <button
+            type="button"
+            id="btnExportCsv"
+            class="btn-outline btn-sm theme-secondary"
+            title="Exportar vista filtrada a CSV">
+            <i class="bi bi-download me-1"></i>CSV
+          </button>
+
+          <!-- Enlaces para Comparar con el Nuevo Dashboard (DESIGN.md + AGENTS.md) -->
+          <a href="/design-system/dashboard.html" class="btn-subtle btn-sm theme-primary text-decoration-none">
+            <i class="bi bi-grid-1x2 me-1"></i>Ver Versión DESIGN.md
+          </a>
+          <a href="/comparador.html" class="btn-solid btn-sm theme-primary text-decoration-none">
+            <i class="bi bi-layout-split me-1"></i>Comparar
+          </a>
+
+          <!-- Conmutador Light / Dark Mode -->
+          <button
+            type="button"
+            id="btnThemeToggle"
+            class="btn-outline btn-sm theme-secondary"
+            aria-label="Cambiar modo de color">
+            <i class="bi bi-moon-stars" id="themeIcon"></i>
+          </button>
+        </div>
+      </div>
+
+      <!-- Barra de Chips de Filtros Activos -->
+      <div id="activeFilterChips" class="d-flex flex-wrap align-items-center gap-2 mt-2 d-none">
+        <span class="fs-xs fg-secondary fw-medium">Filtros activos:</span>
+        <div id="chipContainer" class="d-flex flex-wrap gap-1"></div>
+        <button type="button" id="btnResetFilters" class="btn-link fs-xs fg-danger ms-2">
+          Limpiar todos
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- ========================================================================
+       CONTENIDO PRINCIPAL DEL DASHBOARD
+       ======================================================================== -->
+  <main class="container-fluid py-4 px-4">
+
+    <!-- 2. SECCIÓN DE KPIs PRINCIPALES (6 Tarjetas de Resumen) -->
+    <section aria-label="KPIs Principales" class="mb-4">
+      <div class="row g-3">
+
+        <!-- KPI 1: Volumen de Tickets (Creados vs. Resueltos) -->
+        <div class="col-12 sm:col-6 xl:col-2">
+          <article class="kpi-widget theme-primary">
+            <div class="d-flex align-items-start justify-content-between gap-2 mb-2">
+              <span class="fs-xs fw-semibold fg-secondary text-uppercase">Volumen (Creados / Res.)</span>
+              <span class="kpi-icon-box theme-primary"><i class="bi bi-inboxes"></i></span>
+            </div>
+            <div>
+              <div class="kpi-metric-value" id="kpiVolumeValue">0 / 0</div>
+              <div class="d-flex align-items-center justify-content-between gap-2 mt-2">
+                <span class="badge badge-subtle theme-primary" id="kpiVolumeRatio">0% Ratio</span>
+                <span class="fs-xs fg-secondary" id="kpiBacklogDelta">Backlog: 0</span>
+              </div>
+            </div>
+          </article>
+        </div>
+
+        <!-- KPI 2: Tiempo Medio de Primera Respuesta (FRT) -->
+        <div class="col-12 sm:col-6 xl:col-2">
+          <article class="kpi-widget theme-info" id="kpiFrtCard">
+            <div class="d-flex align-items-start justify-content-between gap-2 mb-2">
+              <span class="fs-xs fw-semibold fg-secondary text-uppercase">Tiempo 1ª Resp. (FRT)</span>
+              <span class="kpi-icon-box theme-info"><i class="bi bi-lightning-charge"></i></span>
+            </div>
+            <div>
+              <div class="kpi-metric-value" id="kpiFrtValue">0.0 min</div>
+              <div class="d-flex align-items-center justify-content-between gap-2 mt-2">
+                <span class="badge badge-subtle theme-success" id="kpiFrtStatus">En Meta</span>
+                <span class="fs-xs fg-secondary">Meta: &lt; 15.0 min</span>
+              </div>
+            </div>
+          </article>
+        </div>
+
+        <!-- KPI 3: Tiempo Medio de Resolución (MTTR) -->
+        <div class="col-12 sm:col-6 xl:col-2">
+          <article class="kpi-widget theme-warning" id="kpiMttrCard">
+            <div class="d-flex align-items-start justify-content-between gap-2 mb-2">
+              <span class="fs-xs fw-semibold fg-secondary text-uppercase">Tiempo Resol. (MTTR)</span>
+              <span class="kpi-icon-box theme-warning"><i class="bi bi-stopwatch"></i></span>
+            </div>
+            <div>
+              <div class="kpi-metric-value" id="kpiMttrValue">0.0 hrs</div>
+              <div class="d-flex align-items-center justify-content-between gap-2 mt-2">
+                <span class="badge badge-subtle theme-success" id="kpiMttrStatus">En Meta</span>
+                <span class="fs-xs fg-secondary">Meta: &lt; 4.0 hrs</span>
+              </div>
+            </div>
+          </article>
+        </div>
+
+        <!-- KPI 4: Resolución en Primer Contacto (FCR) -->
+        <div class="col-12 sm:col-6 xl:col-2">
+          <article class="kpi-widget theme-success" id="kpiFcrCard">
+            <div class="d-flex align-items-start justify-content-between gap-2 mb-2">
+              <span class="fs-xs fw-semibold fg-secondary text-uppercase">Resolución 1er Contacto</span>
+              <span class="kpi-icon-box theme-success"><i class="bi bi-check2-circle"></i></span>
+            </div>
+            <div>
+              <div class="kpi-metric-value" id="kpiFcrValue">0.0%</div>
+              <div class="d-flex align-items-center justify-content-between gap-2 mt-2">
+                <span class="badge badge-subtle theme-success" id="kpiFcrStatus">Óptimo</span>
+                <span class="fs-xs fg-secondary">Meta: ≥ 75.0%</span>
+              </div>
+            </div>
+          </article>
+        </div>
+
+        <!-- KPI 5: Nivel de Satisfacción del Cliente (CSAT) -->
+        <div class="col-12 sm:col-6 xl:col-2">
+          <article class="kpi-widget theme-primary" id="kpiCsatCard">
+            <div class="d-flex align-items-start justify-content-between gap-2 mb-2">
+              <span class="fs-xs fw-semibold fg-secondary text-uppercase">Satisfacción (CSAT)</span>
+              <span class="kpi-icon-box theme-primary"><i class="bi bi-star-fill"></i></span>
+            </div>
+            <div>
+              <div class="kpi-metric-value" id="kpiCsatValue">0.0%</div>
+              <div class="d-flex align-items-center justify-content-between gap-2 mt-2">
+                <span class="badge badge-subtle theme-primary" id="kpiCsatStars">★ 0.0 / 5.0</span>
+                <span class="fs-xs fg-secondary">Meta: ≥ 90.0%</span>
+              </div>
+            </div>
+          </article>
+        </div>
+
+        <!-- KPI 6: Porcentaje de Cumplimiento de SLA -->
+        <div class="col-12 sm:col-6 xl:col-2">
+          <article class="kpi-widget theme-danger" id="kpiSlaCard">
+            <div class="d-flex align-items-start justify-content-between gap-2 mb-2">
+              <span class="fs-xs fw-semibold fg-secondary text-uppercase">% Cumplimiento SLA</span>
+              <span class="kpi-icon-box theme-danger" id="kpiSlaIcon"><i class="bi bi-shield-check"></i></span>
+            </div>
+            <div>
+              <div class="kpi-metric-value" id="kpiSlaValue">0.0%</div>
+              <div class="d-flex align-items-center justify-content-between gap-2 mt-2">
+                <span class="badge badge-subtle theme-danger" id="kpiSlaBadge">0 vencidos</span>
+                <span class="fs-xs fg-secondary">Meta: ≥ 95.0%</span>
+              </div>
+            </div>
+          </article>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- 4. DISTRIBUCIÓN VISUAL: FILA CENTRAL (Tendencia Histórica + Embudo Estado/SLA) -->
+    <section aria-label="Tendencias y Estado del Backlog" class="mb-4">
+      <div class="row g-3">
+
+        <!-- 4.1 Histórico y Tendencia de Tickets -->
+        <div class="col-12 xl:col-8">
+          <div class="card h-100">
+            <div class="card-header d-flex flex-wrap align-items-center justify-content-between gap-2">
+              <div>
+                <h2 class="fs-md fw-bold mb-0">Histórico y Tendencia de Tickets (Creados vs. Resueltos)</h2>
+                <p class="fs-xs fg-secondary mb-0">Evolución diaria de demanda entrante frente a capacidad de resolución y SLA</p>
+              </div>
+              <div class="d-flex align-items-center gap-2">
+                <span class="badge badge-subtle theme-primary">● Creados</span>
+                <span class="badge badge-subtle theme-success">● Resueltos</span>
+                <span class="badge badge-subtle theme-danger">▲ SLA Vencidos</span>
+              </div>
+            </div>
+            <div class="card-body">
+              <div class="chart-panel chart-panel-lg">
+                <canvas id="trendChart"></canvas>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 4.2 Estado Actual de los Tickets (Embudo Operativo + Salud SLA) -->
+        <div class="col-12 xl:col-4">
+          <div class="card h-100">
+            <div class="card-header d-flex align-items-center justify-content-between gap-2">
+              <div>
+                <h2 class="fs-md fw-bold mb-0">Estado Actual de Tickets</h2>
+                <p class="fs-xs fg-secondary mb-0">Embudo operativo segmentado por riesgo de SLA</p>
+              </div>
+              <span class="badge badge-subtle theme-secondary" id="activeQueueCount">0 en cola</span>
+            </div>
+            <div class="card-body">
+              <div class="chart-panel chart-panel-lg">
+                <canvas id="statusFunnelChart"></canvas>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- 4. DISTRIBUCIÓN VISUAL: FILA INFERIOR (Categoría/Canal + Rendimiento por Agente) -->
+    <section aria-label="Distribución por Categoría, Canal y Rendimiento de Agentes" class="mb-4">
+      <div class="row g-3">
+
+        <!-- 4.3 Distribución por Categoría y Canal de Entrada -->
+        <div class="col-12 lg:col-5">
+          <div class="card h-100">
+            <div class="card-header d-flex align-items-center justify-content-between">
+              <div>
+                <h2 class="fs-md fw-bold mb-0">Distribución por Categoría y Canal</h2>
+                <p class="fs-xs fg-secondary mb-0">Pareto de incidencias técnicas y vías de contacto</p>
+              </div>
+            </div>
+            <div class="card-body">
+              <div class="row g-3 align-items-center">
+                <div class="col-12 md:col-7">
+                  <h3 class="fs-xs fw-semibold text-uppercase fg-secondary mb-2">Volumen por Categoría Técnica</h3>
+                  <div class="chart-panel chart-panel-md">
+                    <canvas id="categoryChart"></canvas>
+                  </div>
+                </div>
+                <div class="col-12 md:col-5">
+                  <h3 class="fs-xs fw-semibold text-uppercase fg-secondary mb-2 text-center">Mix por Canal</h3>
+                  <div class="chart-panel chart-panel-sm">
+                    <canvas id="channelChart"></canvas>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 4.4 Rendimiento por Agente -->
+        <div class="col-12 lg:col-7">
+          <div class="card h-100">
+            <div class="card-header d-flex flex-wrap align-items-center justify-content-between gap-2">
+              <div>
+                <h2 class="fs-md fw-bold mb-0">Matriz de Rendimiento por Agente</h2>
+                <p class="fs-xs fg-secondary mb-0">Haz clic en cualquier agente para filtrar el tablero por su cartera</p>
+              </div>
+              <div class="d-flex align-items-center gap-2">
+                <input
+                  type="search"
+                  id="agentSearchInput"
+                  class="form-control form-control-sm"
+                  placeholder="🔍 Buscar agente..."
+                  aria-label="Buscar agente">
+              </div>
+            </div>
+            <div class="card-body p-0">
+              <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                  <thead>
+                    <tr class="fs-xs text-uppercase fg-secondary">
+                      <th class="ps-4">Agente</th>
+                      <th>Nivel</th>
+                      <th class="text-center">Creados / Res.</th>
+                      <th class="text-center">FRT Prom.</th>
+                      <th class="text-center">MTTR</th>
+                      <th class="text-center">FCR %</th>
+                      <th style="min-width: 150px;">% Cumplimiento SLA</th>
+                      <th class="text-end pe-4">CSAT</th>
+                    </tr>
+                  </thead>
+                  <tbody id="agentTableBody" class="fs-sm">
+                    <!-- Renderizado dinámicamente por app.js -->
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- COLA OPERATIVA DE TICKETS (CON ALERTA ROJA/AMARILLA PARA SLAs VENCIDOS) -->
+    <section aria-label="Explorador de Tickets en Tiempo Real">
+      <div class="card">
+        <div class="card-header d-flex flex-wrap align-items-center justify-content-between gap-2">
+          <div class="d-flex align-items-center gap-2">
+            <h2 class="fs-md fw-bold mb-0">Cola de Tickets y Alertas de SLA (`fact_tickets`)</h2>
+            <span class="badge badge-subtle theme-secondary" id="ticketTableCount">0 registros</span>
+          </div>
+          <div class="d-flex flex-wrap align-items-center gap-2">
+            <select id="filterCategory" class="form-control form-control-sm w-auto" aria-label="Filtrar por categoría">
+              <option value="all" selected>Categoría: Todas</option>
+              <option value="Bug de Plataforma">Bug de Plataforma</option>
+              <option value="Integraciones API">Integraciones API</option>
+              <option value="Acceso / Login">Acceso / Login</option>
+              <option value="Infraestructura">Infraestructura</option>
+              <option value="Facturación">Facturación</option>
+            </select>
+            <select id="filterSegment" class="form-control form-control-sm w-auto" aria-label="Filtrar por segmento">
+              <option value="all" selected>Segmento: Todos</option>
+              <option value="Enterprise">Enterprise</option>
+              <option value="Mid-Market">Mid-Market</option>
+              <option value="SMB">SMB</option>
+            </select>
+          </div>
+        </div>
+        <div class="card-body p-0">
+          <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+              <thead>
+                <tr class="fs-xs text-uppercase fg-secondary">
+                  <th class="ps-4">ID_Ticket</th>
+                  <th>Fecha_Creación</th>
+                  <th>Prioridad</th>
+                  <th>Estado</th>
+                  <th>Categoría / Canal</th>
+                  <th>Cliente</th>
+                  <th>Agente</th>
+                  <th class="text-center">FRT</th>
+                  <th class="text-center">MTTR / Meta SLA</th>
+                  <th>Estado SLA</th>
+                  <th class="text-end pe-4">CSAT</th>
+                </tr>
+              </thead>
+              <tbody id="ticketTableBody" class="fs-sm">
+                <!-- Renderizado dinámicamente por app.js -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ========================================================================
+       DIALOG NATIVO DE BOOTSTRAP 6: DETALLE DE TICKET (Inspección Operativa)
+       ======================================================================== -->
+  <dialog class="dialog dialog-lg" id="ticketDetailDialog" aria-labelledby="dialogTicketTitle">
+    <div class="dialog-header">
+      <div class="d-flex align-items-center gap-2">
+        <span class="badge badge-subtle theme-primary" id="dialogTicketId">INC-0000</span>
+        <h3 class="dialog-title fs-md fw-bold mb-0" id="dialogTicketTitle">Detalle Operativo del Ticket</h3>
+      </div>
+      <button type="button" class="btn-close" data-bs-dismiss="dialog" aria-label="Cerrar"></button>
+    </div>
+    <div class="dialog-body" id="dialogTicketBody">
+      <!-- Contenido inyectado dinámicamente al hacer clic en un ticket -->
+    </div>
+    <div class="dialog-footer">
+      <button type="button" class="btn-outline btn-sm theme-secondary" data-bs-dismiss="dialog">Cerrar</button>
+    </div>
+  </dialog>
+
+  <!-- ========================================================================
+       DRAWER NATIVO DE BOOTSTRAP 6: FILTROS AVANZADOS + ESQUEMA DE BD
+       ======================================================================== -->
+  <dialog class="drawer drawer-end" id="advancedFilterDrawer" aria-labelledby="drawerTitle">
+    <div class="drawer-header">
+      <h3 class="drawer-title fs-md fw-bold mb-0" id="drawerTitle">
+        <i class="bi bi-sliders2 me-2 fg-primary"></i>Filtros y Diccionario de Datos
+      </h3>
+      <button type="button" class="btn-close" data-bs-dismiss="drawer" aria-label="Cerrar panel"></button>
+    </div>
+    <div class="drawer-body">
+      <div class="mb-4">
+        <h4 class="fs-xs fw-bold text-uppercase fg-secondary mb-2">Opciones de Visualización</h4>
+        <div class="form-field mb-2">
+          <div class="switch">
+            <input type="checkbox" id="switchOnlyFcr" role="switch" switch>
+          </div>
+          <label for="switchOnlyFcr" class="fs-sm">Solo resueltos en 1er contacto (FCR = 1)</label>
+        </div>
+        <div class="form-field">
+          <div class="switch">
+            <input type="checkbox" id="switchOnlyEnterprise" role="switch" switch>
+          </div>
+          <label for="switchOnlyEnterprise" class="fs-sm">Solo cuentas Enterprise</label>
+        </div>
+      </div>
+
+      <hr>
+
+      <div class="mb-4">
+        <h4 class="fs-xs fw-bold text-uppercase fg-secondary mb-2">3. Esquema de la Base de Datos (`fact_tickets`)</h4>
+        <p class="fs-xs fg-secondary">Estructura de campos activa en memoria dentro del navegador:</p>
+        <ul class="list-unstyled fs-xs d-flex flex-column gap-2">
+          <li><code>ID_Ticket</code> — PK único (ej. <code>INC-2026-8401</code>)</li>
+          <li><code>Fecha_Creacion</code> — Datetime ISO de apertura</li>
+          <li><code>Fecha_Primera_Respuesta</code> — Timestamp 1er contacto</li>
+          <li><code>Fecha_Resolucion</code> — Timestamp de cierre</li>
+          <li><code>Prioridad</code> — <code>P1 - Crítica</code> a <code>P4 - Baja</code></li>
+          <li><code>Estado</code> — Etapa actual en el flujo</li>
+          <li><code>Categoria</code> — Clasificación técnica</li>
+          <li><code>Canal_Entrada</code> — Portal, Chat, Email, Teléfono, API</li>
+          <li><code>Agente</code> / <code>Nivel_Soporte</code> — Responsable y Tier</li>
+          <li><code>Tiempo_FRT_Min</code> — Minutos hasta 1ª respuesta</li>
+          <li><code>Tiempo_MTTR_Horas</code> — Horas netas de resolución</li>
+          <li><code>Resuelto_Primer_Contacto</code> — Booleano FCR (1/0)</li>
+          <li><code>SLA_Cumplido</code> — Booleano SLA (1/0)</li>
+          <li><code>CSAT</code> — Puntuación 1 a 5 estrellas</li>
+        </ul>
+      </div>
+
+      <hr>
+
+      <div>
+        <h4 class="fs-xs fw-bold text-uppercase fg-secondary mb-2">6. Paleta Semántica Bootstrap 6</h4>
+        <div class="d-flex flex-column gap-2 fs-xs">
+          <div class="p-2 rounded-4 bg-subtle-primary fg-emphasis-primary border border-subtle-primary">
+            <strong>.theme-primary (#2563EB):</strong> Volumen general y serie principal
+          </div>
+          <div class="p-2 rounded-4 bg-subtle-success fg-emphasis-success border border-subtle-success">
+            <strong>.theme-success (#10B981):</strong> SLA cumplido (≥ 95%) y FCR óptimo
+          </div>
+          <div class="p-2 rounded-4 bg-subtle-warning fg-emphasis-warning border border-subtle-warning">
+            <strong>.theme-warning (#F59E0B):</strong> SLA en riesgo (&lt; 2h para vencer)
+          </div>
+          <div class="p-2 rounded-4 bg-subtle-danger fg-emphasis-danger border border-subtle-danger">
+            <strong>.theme-danger (#EF4444):</strong> Alerta crítica de SLA vencido
+          </div>
+        </div>
+      </div>
+    </div>
+  </dialog>
+
+  <!-- Chart.js 4 -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
+
+  <!-- Bootstrap 6.0.0-alpha.1 JS Bundle (ESM Module from bootstrap-v6-install skill) -->
+  <script
+    type="module"
+    src="https://cdn.jsdelivr.net/npm/bootstrap@6.0.0-alpha.1/dist/js/bootstrap.bundle.min.js"
+    integrity="sha384-1a/pXj49ZQ1aHEmrJ+gMw1otqoVsYwlEnlD8mIfY2TV03r20Y0CN7uqx1tQogjPL"
+    crossorigin="anonymous"></script>
+
+  <!-- Lógica de Datos, Filtros, KPIs y Gráficos -->
+  <script type="module" src="./app.js"></script>
+
+  <!-- Agentation Visual Feedback Toolbar (conectado a http://localhost:4747) -->
+  <script type="module" src="/agentation-mount.js"></script>
+</body>
+</html>

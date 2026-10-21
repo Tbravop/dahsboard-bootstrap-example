@@ -1,0 +1,182 @@
+<!doctype html>
+<html lang="es" data-theme="light">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Helpdesk Dashboard — DESIGN.md + AGENTS.md + writing-ui-components</title>
+  <script>window.process = { env: { NODE_ENV: "development" } };</script>
+  <script type="importmap">
+  {
+    "imports": {
+      "react": "https://esm.sh/react@18.3.1",
+      "react/jsx-runtime": "https://esm.sh/react@18.3.1/jsx-runtime",
+      "react-dom": "https://esm.sh/react-dom@18.3.1",
+      "react-dom/client": "https://esm.sh/react-dom@18.3.1/client",
+      "agentation": "/node_modules/agentation/dist/index.mjs"
+    }
+  }
+  </script>
+  <link rel="stylesheet" href="./tokens.css">
+</head>
+<body>
+
+  <div id="helpdeskAppRoot">
+
+    <!-- ======================================================================
+         CABECERA DE PÁGINA (No fija: se desplaza al hacer scroll hacia abajo)
+         ====================================================================== -->
+    <header class="ds-page-header">
+      <div class="ds-toolbar-row">
+        <div>
+          <div style="display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-xs);">
+            <h1 class="ds-h3">Tablero de Soporte Técnico</h1>
+            <span class="ds-badge ds-badge-brand">DESIGN.md · OKLCH · @container</span>
+          </div>
+          <p class="ds-small ds-muted">
+            Arquitectura estricta: Tokens OKLCH, Hitbox ≥ 44×44px, 3 Estados de Resolución y lógica desacoplada
+          </p>
+        </div>
+      </div>
+    </header>
+
+    <!-- ======================================================================
+         BARRA DE FILTROS STICKY (Único apartado que acompaña al hacer scroll)
+         ====================================================================== -->
+    <nav class="ds-sticky-filters" aria-label="Segmentadores de datos">
+      <div class="ds-toolbar-row">
+        <div class="ds-slicer-group" role="group" aria-label="Filtros principales">
+          <label for="dsFilterPeriod" class="ds-small ds-muted">Fecha:</label>
+          <select id="dsFilterPeriod" class="ds-select" data-attr="helpdesk-slicer-period">
+            <option value="all">Histórico (14d)</option>
+            <option value="7d" selected>Últimos 7 días</option>
+            <option value="3d">Últimos 3 días</option>
+            <option value="today">Últimas 24h</option>
+          </select>
+
+          <label for="dsFilterPriority" class="ds-small ds-muted">Prioridad:</label>
+          <select id="dsFilterPriority" class="ds-select" data-attr="helpdesk-slicer-priority">
+            <option value="all" selected>Todas</option>
+            <option value="P1 - Crítica">P1 - Crítica</option>
+            <option value="P2 - Alta">P2 - Alta</option>
+            <option value="P3 - Media">P3 - Media</option>
+            <option value="P4 - Baja">P4 - Baja</option>
+          </select>
+
+          <label for="dsFilterTier" class="ds-small ds-muted">Nivel:</label>
+          <select id="dsFilterTier" class="ds-select" data-attr="helpdesk-slicer-tier">
+            <option value="all" selected>Todos (T1–T3)</option>
+            <option value="Tier 1">Tier 1</option>
+            <option value="Tier 2">Tier 2</option>
+            <option value="Tier 3 - Ingeniería">Tier 3 - Ingeniería</option>
+          </select>
+
+          <label for="dsFilterChannel" class="ds-small ds-muted">Canal:</label>
+          <select id="dsFilterChannel" class="ds-select" data-attr="helpdesk-slicer-channel">
+            <option value="all" selected>Todos</option>
+            <option value="Portal Web">Portal Web</option>
+            <option value="Chat en Vivo">Chat en Vivo</option>
+            <option value="Email">Email</option>
+            <option value="Slack / Teams">Slack / Teams</option>
+            <option value="Teléfono">Teléfono</option>
+            <option value="API">API</option>
+          </select>
+
+          <div class="ds-slicer-group" role="group" aria-label="Estado de SLA">
+            <button type="button" class="ds-btn" data-sla-mode="all" aria-pressed="true" data-attr="helpdesk-sla-all">
+              <span>Todos</span>
+            </button>
+            <button type="button" class="ds-btn" data-sla-mode="risk" aria-pressed="false" data-attr="helpdesk-sla-risk">
+              <span>En Riesgo</span>
+            </button>
+            <button type="button" class="ds-btn" data-sla-mode="breached" aria-pressed="false" data-attr="helpdesk-sla-breached">
+              <span>SLA Vencido</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </nav>
+
+    <!-- ======================================================================
+         CONTENEDOR PRINCIPAL CON CONSULTAS DE CONTENEDOR (@container)
+         ====================================================================== -->
+    <main class="ds-shell" id="dsMainMount">
+      <!-- Renderizado por HelpdeskDashboardApp.js siguiendo Loading -> Error -> Empty -> Data -->
+    </main>
+
+    <!-- ======================================================================
+         BURBUJA FLOTANTE ESQUINA INFERIOR DERECHA (3 Puntos Verticales)
+         ====================================================================== -->
+    <aside class="ds-floating-bubble" aria-label="Menú rápido de estados, tema y versiones">
+      <div class="ds-bubble-panel" id="dsBubblePanel" hidden>
+        <div style="display: flex; align-items: center; justify-content: space-between; gap: var(--space-sm);">
+          <span class="ds-small ds-muted" style="font-weight: 700; text-transform: uppercase;">Apariencia</span>
+          <button
+            type="button"
+            class="ds-btn"
+            id="btnToggleDsTheme"
+            aria-label="Cambiar tema claro/oscuro"
+            data-attr="helpdesk-theme-toggle">
+            <span id="dsThemeIconSlot"></span>
+            <span>Modo Oscuro / Claro</span>
+          </button>
+        </div>
+
+        <div style="border-block-start: 1px solid var(--color-border-subtle); padding-block-start: var(--space-xs);">
+          <span class="ds-small ds-muted" style="font-weight: 700; text-transform: uppercase; display: block; margin-block-end: var(--space-xs);">
+            Estados de Resolución (Regla 5)
+          </span>
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-xs);">
+            <button type="button" class="ds-btn" id="btnSimReady" data-lock-on-flight="true" data-attr="sim-state-ready">
+              <span>Datos</span>
+            </button>
+            <button type="button" class="ds-btn" id="btnSimLoading" data-lock-on-flight="true" data-attr="sim-state-loading">
+              <span>Cargando</span>
+            </button>
+            <button type="button" class="ds-btn" id="btnSimEmpty" data-lock-on-flight="true" data-attr="sim-state-empty">
+              <span>Vacío</span>
+            </button>
+            <button type="button" class="ds-btn" id="btnSimError" data-lock-on-flight="true" data-attr="sim-state-error">
+              <span>Error</span>
+            </button>
+          </div>
+        </div>
+
+        <div style="border-block-start: 1px solid var(--color-border-subtle); padding-block-start: var(--space-xs); display: flex; flex-direction: column; gap: var(--space-xs);">
+          <span class="ds-small ds-muted" style="font-weight: 700; text-transform: uppercase;">
+            Cambiar Vista / Comparar
+          </span>
+          <a href="/index.html" class="ds-btn" style="text-decoration: none;" data-attr="nav-switch-bootstrap">
+            <span>Ver Versión Bootstrap 6</span>
+          </a>
+          <a href="/comparador.html" class="ds-btn ds-btn-primary" style="text-decoration: none;" data-attr="nav-open-comparator">
+            <span>Comparar Lado a Lado</span>
+          </a>
+        </div>
+      </div>
+
+      <button
+        type="button"
+        class="ds-bubble-trigger"
+        id="btnFloatingBubbleToggle"
+        aria-expanded="false"
+        aria-controls="dsBubblePanel"
+        aria-label="Abrir opciones de vista, estados y tema"
+        data-attr="helpdesk-floating-options-trigger">
+        <span id="dsBubbleIconSlot"></span>
+      </button>
+    </aside>
+
+    <!-- ======================================================================
+         MODAL INSPECTOR NATIVO (<dialog>)
+         ====================================================================== -->
+    <dialog class="ds-dialog" id="dsInspectorDialog" aria-label="Detalle del Ticket"></dialog>
+
+  </div>
+
+  <script type="module">
+    import { mountHelpdeskDashboardApp } from './domains/helpdesk/HelpdeskDashboardApp.js';
+    mountHelpdeskDashboardApp(document.getElementById('helpdeskAppRoot'));
+  </script>
+  <script type="module" src="/agentation-mount.js"></script>
+</body>
+</html>

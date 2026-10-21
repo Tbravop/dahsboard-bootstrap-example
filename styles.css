@@ -1,0 +1,139 @@
+/* ==========================================================================
+   Helpdesk Operations Dashboard — Custom Styles (Bootstrap 6 Architecture)
+   Follows bootstrap-color-system & bootstrap-component skills:
+   - Uses @layer custom so utilities and helpers still win
+   - Reads Bootstrap 6 semantic tokens (--bs-bg-*, --bs-fg-*, --bs-border-*)
+   - Supports automatic light-dark() and [data-bs-theme] modes
+   ========================================================================== */
+
+@layer custom {
+  :root,
+  :host {
+    --kpi-card-radius: var(--bs-radius-6, 0.75rem);
+    --kpi-card-padding: var(--bs-spacer-5, 1rem);
+    --dashboard-surface: light-dark(#f8fafc, #0b1120);
+  }
+
+  body {
+    background-color: var(--dashboard-surface);
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* Custom KPI Widget Component following bootstrap-component token pattern */
+  .kpi-widget {
+    --kpi-bg: var(--bs-theme-bg-subtle, var(--bs-bg-body));
+    --kpi-border: var(--bs-theme-border, var(--bs-border-color));
+    --kpi-accent: var(--bs-theme-base, var(--bs-primary));
+
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    height: 100%;
+    padding: var(--kpi-card-padding);
+    background-color: var(--bs-bg-body);
+    border: var(--bs-border-width, 1px) solid var(--kpi-border);
+    border-radius: var(--kpi-card-radius);
+    box-shadow: 0 1px 3px 0 color-mix(in oklab, var(--bs-black, #000), transparent 94%);
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+    overflow: hidden;
+  }
+
+  .kpi-widget::before {
+    content: "";
+    position: absolute;
+    inset-block-start: 0;
+    inset-inline-start: 0;
+    inline-size: 100%;
+    block-size: 3px;
+    background-color: var(--kpi-accent);
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .kpi-widget:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 16px -4px color-mix(in oklab, var(--bs-black, #000), transparent 90%);
+    }
+  }
+
+  .kpi-icon-box {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    inline-size: 2.25rem;
+    block-size: 2.25rem;
+    border-radius: var(--bs-radius-5, 0.5rem);
+    background-color: var(--bs-theme-bg-subtle, var(--bs-bg-2));
+    color: var(--bs-theme-fg, var(--bs-fg-1));
+    flex-shrink: 0;
+  }
+
+  .kpi-metric-value {
+    font-size: clamp(1.45rem, 1.2rem + 0.8vw, 1.85rem);
+    font-weight: 700;
+    line-height: 1.15;
+    letter-spacing: -0.025em;
+    color: var(--bs-fg-body);
+  }
+
+  /* Chart containers */
+  .chart-panel {
+    position: relative;
+    inline-size: 100%;
+  }
+
+  .chart-panel-lg {
+    block-size: 300px;
+  }
+
+  .chart-panel-md {
+    block-size: 250px;
+  }
+
+  .chart-panel-sm {
+    block-size: 210px;
+  }
+
+  /* Agent Avatar initials fallback */
+  .agent-avatar {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    inline-size: 2rem;
+    block-size: 2rem;
+    border-radius: var(--bs-radius-pill, 50rem);
+    font-size: 0.75rem;
+    font-weight: 600;
+    background-color: var(--bs-theme-bg-subtle, var(--bs-bg-2));
+    color: var(--bs-theme-fg-emphasis, var(--bs-fg-1));
+    border: 1px solid var(--bs-theme-border, var(--bs-border-subtle));
+  }
+
+  /* Subtle pulse indicator for live SLA breaches */
+  .live-dot {
+    display: inline-block;
+    inline-size: 0.5rem;
+    block-size: 0.5rem;
+    border-radius: 50%;
+    background-color: var(--bs-danger, #ef4444);
+    box-shadow: 0 0 0 0 color-mix(in oklab, var(--bs-danger, #ef4444), transparent 30%);
+    animation: pulse-ring 1.8s infinite;
+  }
+
+  @keyframes pulse-ring {
+    0% {
+      box-shadow: 0 0 0 0 color-mix(in oklab, var(--bs-danger, #ef4444), transparent 35%);
+    }
+    70% {
+      box-shadow: 0 0 0 6px transparent;
+    }
+    100% {
+      box-shadow: 0 0 0 0 transparent;
+    }
+  }
+
+  /* Interactive row cursor */
+  .ticket-row-clickable {
+    cursor: pointer;
+  }
+}

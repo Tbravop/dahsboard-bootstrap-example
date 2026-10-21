@@ -1,0 +1,16 @@
+{
+  "name": "bootstrap-dashboard",
+  "version": "1.0.0",
+  "description": "Este repositorio implementa el **Framework de Dashboard de Operaciones de Soporte Técnico (Helpdesk / Customer Support)** construido con **Bootstrap 6 (`6.0.0-alpha.1`)** siguiendo las reglas arquitectónicas de los skills oficiales `twbs/bootstrap` (`.agents/skills/`).",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "devDependencies": {
+    "agentation": "^3.1.2"
+  }
+}

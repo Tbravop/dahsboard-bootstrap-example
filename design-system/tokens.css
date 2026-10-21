@@ -1,0 +1,771 @@
+/* ==========================================================================
+   DESIGN.md — Official Design System Tokens, Rules & Foundations
+   Single Source of Truth:
+   - OKLCH Primitive Coordinates & Semantic Intent Mapping
+   - Fluid Typography Scale (clamp() with strict 12px / 0.75rem floor)
+   - Fluid 4px Base Grid Spacing System (--space-xs to --space-xl)
+   - Container Queries (@container) per AGENTS.md Rule 6
+   - 5 Explicit Interactive States & 44x44px Accessibility Hitbox Rule
+   - Motion Tokens & prefers-reduced-motion compliance
+   ========================================================================== */
+
+:root {
+  /* 1. Primitive Tokens (Base Coordinates in OKLCH L C H space) */
+  --slate-50-raw: 0.97 0.01 256;
+  --slate-100-raw: 0.95 0.01 256;
+  --slate-800-raw: 0.27 0.03 256;
+  --slate-900-raw: 0.14 0.03 256;
+  --indigo-600-raw: 0.54 0.19 265;
+  --emerald-600-raw: 0.64 0.17 152;
+  --rose-600-raw: 0.58 0.21 16;
+  --amber-600-raw: 0.72 0.16 70;
+
+  /* 2. Semantic Mapping (Light Theme Default) */
+  --color-bg-canvas: oklch(var(--slate-50-raw));
+  --color-bg-surface: oklch(1 0 0);
+  --color-bg-surface-subtle: oklch(from var(--color-bg-canvas) calc(l - 0.015) c h);
+  --color-border-subtle: oklch(var(--slate-100-raw));
+  --color-border-strong: oklch(var(--slate-800-raw) / 0.22);
+
+  /* Typographic Content Contrast */
+  --color-text-primary: oklch(var(--slate-900-raw));
+  --color-text-muted: oklch(var(--slate-800-raw));
+  --color-text-on-brand: oklch(1 0 0);
+
+  /* Interactive Controls */
+  --color-brand-primary: oklch(var(--indigo-600-raw));
+  --color-brand-hover: oklch(from var(--color-brand-primary) calc(l - 0.05) c h);
+  --color-brand-active: oklch(from var(--color-brand-primary) calc(l - 0.10) c h);
+  --color-brand-subtle: oklch(var(--indigo-600-raw) / 0.10);
+
+  /* Status Semantics */
+  --color-status-success: oklch(var(--emerald-600-raw));
+  --color-status-success-subtle: oklch(var(--emerald-600-raw) / 0.12);
+  --color-status-warning: oklch(var(--amber-600-raw));
+  --color-status-warning-subtle: oklch(var(--amber-600-raw) / 0.14);
+  --color-status-error: oklch(var(--rose-600-raw));
+  --color-status-error-subtle: oklch(var(--rose-600-raw) / 0.12);
+
+  /* 3. Fluid Typography Scales (Strict 0.75rem / 12px floor) */
+  --fs-h1: clamp(2.0rem, 1.47rem + 2.25vw, 3.5rem);
+  --fs-h2: clamp(1.5rem, 1.24rem + 1.13vw, 2.25rem);
+  --fs-h3: clamp(1.25rem, 1.16rem + 0.38vw, 1.5rem);
+  --fs-body: clamp(0.875rem, 0.83rem + 0.19vw, 1.0rem);
+  --fs-small: clamp(0.75rem, 0.72rem + 0.15vw, 0.875rem);
+
+  /* 4. Fluid Spacing & 4px Base Grid System */
+  --space-xs: 0.25rem;
+  --space-sm: clamp(0.5rem, 0.41rem + 0.38vw, 0.75rem);
+  --space-md: clamp(1.0rem, 0.82rem + 0.75vw, 1.5rem);
+  --space-lg: clamp(1.5rem, 0.97rem + 2.25vw, 3.0rem);
+  --space-xl: clamp(2.0rem, 0.94rem + 4.51vw, 5.0rem);
+
+  /* 5. Motion & Transition Scale */
+  --duration-micro: 100ms;
+  --duration-sm: 200ms;
+  --duration-md: 300ms;
+  --duration-lg: 400ms;
+  --duration-xl: 500ms;
+  --ease-out: cubic-bezier(0, 0, 0.2, 1);
+  --ease-in: cubic-bezier(0.4, 0, 1, 1);
+
+  /* 6. Borders, Radius & Perceptual Ambient Elevations */
+  --radius-sm: 0.25rem;
+  --radius-md: 0.5rem;
+  --radius-lg: 0.75rem;
+  --shadow-ambient: rgba(15 23 42 / 0.08);
+  --shadow-sm: 0 1px 2px var(--shadow-ambient);
+  --shadow-md: 0 4px 12px -2px var(--shadow-ambient);
+  --shadow-lg: 0 16px 32px -4px var(--shadow-ambient);
+
+  /* Accessibility Hitbox Minimum (44x44px per DESIGN.md) */
+  --hitbox-min: 2.75rem;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --color-bg-canvas: oklch(var(--slate-900-raw));
+    --color-bg-surface: oklch(from oklch(var(--slate-900-raw)) calc(l + 0.05) c h);
+    --color-bg-surface-subtle: oklch(from oklch(var(--slate-900-raw)) calc(l + 0.08) c h);
+    --color-border-subtle: oklch(var(--slate-800-raw));
+    --color-border-strong: oklch(var(--slate-50-raw) / 0.22);
+    --color-text-primary: oklch(var(--slate-50-raw));
+    --color-text-muted: oklch(from oklch(var(--slate-50-raw)) calc(l - 0.15) c h);
+    --color-brand-primary: oklch(from oklch(var(--indigo-600-raw)) calc(l + 0.05) c h);
+    --color-brand-hover: oklch(from var(--color-brand-primary) calc(l + 0.05) c h);
+    --color-brand-active: oklch(from var(--color-brand-primary) calc(l - 0.05) c h);
+    --shadow-ambient: rgba(2 6 23 / 0.45);
+  }
+}
+
+:root[data-theme="dark"] {
+  --color-bg-canvas: oklch(var(--slate-900-raw));
+  --color-bg-surface: oklch(from oklch(var(--slate-900-raw)) calc(l + 0.05) c h);
+  --color-bg-surface-subtle: oklch(from oklch(var(--slate-900-raw)) calc(l + 0.08) c h);
+  --color-border-subtle: oklch(var(--slate-800-raw));
+  --color-border-strong: oklch(var(--slate-50-raw) / 0.22);
+  --color-text-primary: oklch(var(--slate-50-raw));
+  --color-text-muted: oklch(from oklch(var(--slate-50-raw)) calc(l - 0.15) c h);
+  --color-brand-primary: oklch(from oklch(var(--indigo-600-raw)) calc(l + 0.05) c h);
+  --color-brand-hover: oklch(from var(--color-brand-primary) calc(l + 0.05) c h);
+  --color-brand-active: oklch(from var(--color-brand-primary) calc(l - 0.05) c h);
+  --shadow-ambient: rgba(2 6 23 / 0.45);
+}
+
+/* Reduced Motion Accessibility Override (anti-patterns.md Section 4) */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* ==========================================================================
+   BASE RESET & TYPOGRAPHY
+   ========================================================================== */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  background-color: var(--color-bg-canvas);
+  color: var(--color-text-primary);
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  font-size: var(--fs-body);
+  line-height: 1.5;
+  font-variant-numeric: tabular-nums;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Typography Hierarchy */
+.ds-h1 {
+  font-size: var(--fs-h1);
+  font-weight: 700;
+  letter-spacing: -0.025em;
+  line-height: 1.15;
+}
+
+.ds-h2 {
+  font-size: var(--fs-h2);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  line-height: 1.2;
+}
+
+.ds-h3 {
+  font-size: var(--fs-h3);
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  line-height: 1.3;
+}
+
+.ds-small {
+  font-size: var(--fs-small);
+  line-height: 1.4;
+}
+
+.ds-muted {
+  color: var(--color-text-muted);
+}
+
+/* ==========================================================================
+   12-COLUMN FLUID LAYOUT ENGINE & CONTAINER QUERIES (AGENTS.md Rule 6)
+   ========================================================================== */
+.ds-shell {
+  container-type: inline-size;
+  container-name: workspace-shell;
+  padding-inline: var(--space-lg);
+  padding-block: var(--space-md);
+  max-inline-size: 1920px;
+  margin-inline: auto;
+}
+
+.ds-grid-12 {
+  display: grid;
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+  gap: var(--space-md);
+  margin-block-end: var(--space-md);
+}
+
+/* Container-Query Responsive Spans (Responds to container width, not viewport!) */
+.ds-col-12 {
+  grid-column: span 12;
+}
+
+@container workspace-shell (min-width: 440px) {
+  .ds-cq-sm-6 {
+    grid-column: span 6;
+  }
+}
+
+@container workspace-shell (min-width: 780px) {
+  .ds-cq-md-6 {
+    grid-column: span 6;
+  }
+  .ds-cq-md-4 {
+    grid-column: span 4;
+  }
+}
+
+@container workspace-shell (min-width: 980px) {
+  .ds-cq-lg-4 {
+    grid-column: span 4;
+  }
+  .ds-cq-lg-5 {
+    grid-column: span 5;
+  }
+  .ds-cq-lg-7 {
+    grid-column: span 7;
+  }
+  .ds-cq-lg-8 {
+    grid-column: span 8;
+  }
+}
+
+/* ==========================================================================
+   KPI HORIZONTAL DRAG STRIP (< 1240px shows 3 full cards + peek of 4th,
+   full-bleed across shell padding so cards are not clipped by inner container walls)
+   ========================================================================== */
+.ds-kpi-strip {
+  display: flex;
+  flex-wrap: nowrap;
+  gap: var(--space-md);
+  margin-block-start: -6px;
+  padding-block: 6px;
+  margin-inline: calc(-1 * var(--space-lg));
+  padding-inline: var(--space-lg);
+  margin-block-end: var(--space-md);
+  overflow-x: auto;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.ds-kpi-strip.has-overflow {
+  cursor: grab;
+  user-select: none;
+}
+
+.ds-kpi-strip::-webkit-scrollbar {
+  display: none;
+}
+
+.ds-kpi-strip.has-overflow.is-dragging {
+  cursor: grabbing;
+}
+
+.ds-kpi-strip > .ds-kpi-item {
+  flex: 0 0 calc((100% - (3 * var(--space-md))) / 3.22);
+  min-inline-size: 180px;
+}
+
+@container workspace-shell (min-width: 1240px) {
+  .ds-kpi-strip {
+    display: grid;
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+    margin-inline: 0;
+    padding-inline: 0;
+    overflow-x: visible;
+    cursor: default;
+    user-select: auto;
+  }
+
+  .ds-kpi-strip > .ds-kpi-item {
+    min-inline-size: 0;
+  }
+}
+
+.ds-kpi-footer {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-xs);
+  margin-block-start: auto;
+}
+
+/* ==========================================================================
+   SURFACE CARDS WITH CONTAINER QUERY CONTEXT
+   ========================================================================== */
+.ds-surface-card {
+  container-type: inline-size;
+  container-name: card-panel;
+  background-color: var(--color-bg-surface);
+  border: 1px solid var(--color-border-subtle);
+  border-radius: var(--radius-lg);
+  padding: var(--space-md);
+  box-shadow: var(--shadow-sm);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+  height: 100%;
+}
+
+.ds-surface-card-flush {
+  padding: 0;
+  overflow: hidden;
+}
+
+.ds-card-header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-sm);
+  padding: var(--space-md);
+  border-block-end: 1px solid var(--color-border-subtle);
+}
+
+/* Dual-column layout inside category/channel card that stacks when container < 520px */
+.ds-split-panel {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--space-md);
+}
+
+@container card-panel (min-width: 520px) {
+  .ds-split-panel {
+    grid-template-columns: 1.35fr 1fr;
+  }
+}
+
+/* ==========================================================================
+   INTERACTIVE CONTROLS — 5 EXPLICIT STATES & 44x44px HITBOX RULE
+   ========================================================================== */
+.ds-btn,
+.ds-select,
+.ds-input {
+  min-block-size: var(--hitbox-min);
+  min-inline-size: var(--hitbox-min);
+  padding-inline: var(--space-sm);
+  padding-block: var(--space-xs);
+  border-radius: var(--radius-md);
+  font-size: var(--fs-small);
+  font-weight: 600;
+  font-family: inherit;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-xs);
+  transition-property: background-color, border-color, color, box-shadow, transform;
+  transition-duration: var(--duration-micro);
+  transition-timing-function: var(--ease-out);
+}
+
+/* 1. Default, Hover & Active States — uniform default style without relief or tone shifts (Feedback #1) */
+.ds-btn:not(:hover),
+.ds-btn:hover:not([disabled]),
+.ds-btn:active:not([disabled]) {
+  background-color: var(--color-bg-surface);
+  color: var(--color-text-primary);
+  border: 1px solid var(--color-border-strong);
+  transform: none;
+  box-shadow: none;
+  cursor: pointer;
+}
+
+/* 4. Focus State (:focus-visible) */
+.ds-btn:focus-visible,
+.ds-select:focus-visible,
+.ds-input:focus-visible,
+.ds-row-action-btn:focus-visible {
+  outline: 2px solid var(--color-brand-primary);
+  outline-offset: 2px;
+}
+
+/* 5. Disabled State ([disabled]) */
+.ds-btn[disabled],
+.ds-select[disabled],
+.ds-input[disabled] {
+  opacity: 0.48;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+/* Brand Primary & Active Toggle Variants — uniform default brand style without relief/tone shifts */
+.ds-btn-primary:not(:hover),
+.ds-btn-primary:hover:not([disabled]),
+.ds-btn-primary:active:not([disabled]),
+.ds-btn[aria-pressed="true"]:not(:hover),
+.ds-btn[aria-pressed="true"]:hover:not([disabled]),
+.ds-btn[aria-pressed="true"]:active:not([disabled]) {
+  background-color: var(--color-brand-primary);
+  color: var(--color-text-on-brand);
+  border: 1px solid var(--color-brand-primary);
+  transform: none;
+  box-shadow: none;
+}
+
+/* Form Selects & Search Inputs */
+.ds-select,
+.ds-input {
+  background-color: var(--color-bg-surface);
+  color: var(--color-text-primary);
+  border: 1px solid var(--color-border-strong);
+  font-weight: 500;
+}
+
+.ds-select:hover:not([disabled]),
+.ds-input:hover:not([disabled]) {
+  border-color: var(--color-brand-primary);
+}
+
+/* Interactive Table Action Button (Enforces AGENTS.md Rule 5: No onClick on <tr>/<div>) */
+.ds-row-action-btn {
+  min-block-size: var(--hitbox-min);
+  min-inline-size: var(--hitbox-min);
+  padding-inline: var(--space-sm);
+  border-radius: var(--radius-sm);
+  border: 1px solid transparent;
+  background-color: transparent;
+  color: var(--color-brand-primary);
+  font-size: var(--fs-small);
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-xs);
+  cursor: pointer;
+  transition: background-color var(--duration-micro) var(--ease-out);
+}
+
+.ds-row-action-btn:hover:not([disabled]) {
+  background-color: var(--color-brand-subtle);
+  border-color: var(--color-brand-primary);
+}
+
+.ds-row-action-btn:active:not([disabled]) {
+  background-color: var(--color-brand-primary);
+  color: var(--color-text-on-brand);
+}
+
+/* Agent cell: Name on top, subtle (AG-XX) underneath */
+.ds-agent-cell-stack {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+  text-align: start;
+  gap: 0.125rem;
+}
+
+.ds-agent-name {
+  display: block;
+  max-inline-size: min-content;
+  white-space: normal;
+  font-weight: 600;
+  color: var(--color-brand-primary);
+  line-height: 1.2;
+}
+
+.ds-agent-code {
+  display: block;
+  white-space: nowrap;
+  font-size: var(--fs-small);
+  font-weight: 400;
+  color: var(--color-text-muted);
+  opacity: 0.72;
+  line-height: 1.2;
+}
+
+@container card-panel (min-width: 720px) {
+  .ds-agent-name {
+    max-inline-size: none;
+    white-space: nowrap;
+  }
+}
+
+/* ==========================================================================
+   ICONOGRAPHY (24x24px Envelope, 2px Stroke, Round Caps/Joins)
+   ========================================================================== */
+.ds-icon-svg {
+  inline-size: 1.5rem;
+  block-size: 1.5rem;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  fill: none;
+  flex-shrink: 0;
+}
+
+/* ==========================================================================
+   CORE UI COMPONENTS: BADGE & TABLE & PROGRESS
+   ========================================================================== */
+.ds-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-xs);
+  padding-inline: var(--space-sm);
+  padding-block: var(--space-xs);
+  border-radius: var(--radius-sm);
+  font-size: var(--fs-small);
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.ds-badge-brand {
+  background-color: var(--color-brand-subtle);
+  color: var(--color-brand-primary);
+}
+
+.ds-badge-success {
+  background-color: var(--color-status-success-subtle);
+  color: var(--color-status-success);
+}
+
+.ds-badge-warning {
+  background-color: var(--color-status-warning-subtle);
+  color: var(--color-status-warning);
+}
+
+.ds-badge-error {
+  background-color: var(--color-status-error-subtle);
+  color: var(--color-status-error);
+}
+
+.ds-badge-neutral {
+  background-color: var(--color-bg-surface-subtle);
+  color: var(--color-text-muted);
+  border: 1px solid var(--color-border-subtle);
+}
+
+/* Data Table — drag-to-scroll only active when .has-overflow is present */
+.ds-table-wrap {
+  inline-size: 100%;
+  overflow-x: auto;
+  cursor: default;
+}
+
+.ds-table-wrap.has-overflow {
+  cursor: grab;
+}
+
+.ds-table-wrap.has-overflow.is-dragging {
+  cursor: grabbing;
+  user-select: none;
+}
+
+.ds-table {
+  inline-size: 100%;
+  border-collapse: collapse;
+  text-align: start;
+  font-size: var(--fs-small);
+}
+
+.ds-table th {
+  padding: var(--space-sm) var(--space-md);
+  background-color: var(--color-bg-surface-subtle);
+  color: var(--color-text-muted);
+  font-weight: 600;
+  text-transform: uppercase;
+  text-align: start;
+  border-block-end: 1px solid var(--color-border-subtle);
+  white-space: nowrap;
+}
+
+.ds-table td {
+  padding: var(--space-xs) var(--space-md);
+  text-align: start;
+  border-block-end: 1px solid var(--color-border-subtle);
+  vertical-align: middle;
+}
+
+.ds-table tr[data-selected="true"] td {
+  background-color: var(--color-brand-subtle);
+}
+
+.ds-table tr[data-breached="true"] td {
+  background-color: var(--color-status-error-subtle);
+}
+
+.ds-agent-row,
+.ds-ticket-row {
+  cursor: pointer;
+  transition: background-color var(--duration-micro) var(--ease-out);
+}
+
+.ds-agent-row:hover td,
+.ds-ticket-row:hover td {
+  background-color: var(--color-brand-subtle);
+}
+
+.ds-ticket-row[data-breached="true"]:hover td {
+  background-color: oklch(var(--rose-600-raw) / 0.20);
+}
+
+.ds-agent-row:focus-visible,
+.ds-ticket-row:focus-visible {
+  outline: 2px solid var(--color-brand-primary);
+  outline-offset: -2px;
+}
+
+/* Progress track */
+.ds-progress-track {
+  inline-size: 100%;
+  block-size: 0.5rem;
+  background-color: var(--color-border-subtle);
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+}
+
+.ds-progress-fill {
+  block-size: 100%;
+  border-radius: var(--radius-sm);
+  transition: inline-size var(--duration-md) var(--ease-out);
+}
+
+/* Non-sticky Page Title Header & Sticky Filter-Only Bar (Feedback #4) */
+.ds-page-header {
+  background-color: var(--color-bg-surface);
+  border-block-end: 1px solid var(--color-border-subtle);
+  padding-inline: var(--space-lg);
+  padding-block: var(--space-sm);
+}
+
+.ds-sticky-filters {
+  position: sticky;
+  inset-block-start: 0;
+  z-index: 20;
+  background-color: var(--color-bg-surface);
+  border-block-end: 1px solid var(--color-border-subtle);
+  box-shadow: var(--shadow-sm);
+  padding-inline: var(--space-lg);
+  padding-block: var(--space-sm);
+  transition: padding-block var(--duration-sm) var(--ease-out), box-shadow var(--duration-sm) var(--ease-out);
+}
+
+/* Compact "small" controls when user scrolls down (Feedback #2) */
+.ds-sticky-filters.is-scrolled {
+  padding-block: var(--space-xs);
+  box-shadow: var(--shadow-md);
+}
+
+.ds-sticky-filters.is-scrolled .ds-select,
+.ds-sticky-filters.is-scrolled .ds-btn {
+  min-block-size: 2rem;
+  min-inline-size: auto;
+  padding-inline: var(--space-sm);
+  padding-block: 0.125rem;
+  font-size: var(--fs-small);
+  border-radius: var(--radius-sm);
+}
+
+.ds-sticky-filters.is-scrolled .ds-slicer-group {
+  gap: var(--space-xs);
+}
+
+.ds-toolbar-row {
+  max-inline-size: 1920px;
+  margin-inline: auto;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-sm);
+}
+
+.ds-slicer-group {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-sm);
+}
+
+/* Floating Bottom-Left Bubble (3 Vertical Dots) for States, Theme & View Switcher (Feedback #3) */
+.ds-floating-bubble {
+  position: fixed;
+  inset-block-end: var(--space-md);
+  inset-inline-start: var(--space-md);
+  z-index: 40;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--space-sm);
+}
+
+.ds-bubble-trigger {
+  min-block-size: var(--hitbox-min);
+  min-inline-size: var(--hitbox-min);
+  border-radius: 9999px;
+  background-color: var(--color-brand-primary);
+  color: var(--color-text-on-brand);
+  border: 1px solid var(--color-brand-primary);
+  box-shadow: var(--shadow-lg);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background-color var(--duration-micro) var(--ease-out), transform var(--duration-micro) var(--ease-out);
+}
+
+.ds-bubble-trigger:hover {
+  background-color: var(--color-brand-hover);
+}
+
+.ds-bubble-trigger:active {
+  transform: scale(0.96);
+}
+
+.ds-bubble-trigger:focus-visible {
+  outline: 2px solid var(--color-brand-primary);
+  outline-offset: 2px;
+}
+
+.ds-bubble-panel {
+  background-color: var(--color-bg-surface);
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-lg);
+  padding: var(--space-md);
+  min-inline-size: 260px;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+  transform-origin: bottom left;
+  transition: opacity var(--duration-sm) var(--ease-out), transform var(--duration-sm) var(--ease-out);
+}
+
+.ds-bubble-panel[hidden] {
+  display: none;
+}
+
+/* Native Dialog Modal */
+.ds-dialog {
+  margin: auto;
+  inline-size: min(92vw, 680px);
+  background-color: var(--color-bg-surface);
+  color: var(--color-text-primary);
+  border: 1px solid var(--color-border-subtle);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-lg);
+  padding: 0;
+}
+
+.ds-dialog::backdrop {
+  background-color: var(--shadow-ambient);
+}
+
+/* State Resolution Skeleton & States (Loading -> Error -> Empty) */
+.ds-state-box {
+  padding: var(--space-xl) var(--space-md);
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-sm);
+}
+
+.ds-skeleton-bar {
+  inline-size: min(100%, 360px);
+  block-size: 0.75rem;
+  border-radius: var(--radius-sm);
+  background-color: var(--color-border-subtle);
+}
