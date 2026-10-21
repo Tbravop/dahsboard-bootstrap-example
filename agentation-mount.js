@@ -1,36 +1,34 @@
 // ============================================================================
-// Agentation Visual Feedback Toolbar Mount
-// Disabled on GitHub Pages / production; only loads on localhost
+// Agentation Visual Feedback Toolbar Mount (Active on 'dev' branch)
+// Connects the browser pages to the Agentation MCP server at http://localhost:4747
 // ============================================================================
 
-const isLocal =
-  window.location.hostname === 'localhost' ||
-  window.location.hostname === '127.0.0.1';
+window.process = window.process || { env: { NODE_ENV: 'development' } };
 
-if (isLocal) {
-  window.process = window.process || { env: { NODE_ENV: 'development' } };
+import { createElement } from 'react';
+import { createRoot } from 'react-dom/client';
+import { Agentation } from 'agentation';
 
-  Promise.all([
-    import('react'),
-    import('react-dom/client'),
-    import('agentation')
-  ]).then(([{ createElement }, { createRoot }, { Agentation }]) => {
-    let hostEl = document.getElementById('agentation-host');
-    if (!hostEl) {
-      hostEl = document.createElement('div');
-      hostEl.id = 'agentation-host';
-      document.body.appendChild(hostEl);
-    }
+function mountAgentationToolbar() {
+  let hostEl = document.getElementById('agentation-host');
+  if (!hostEl) {
+    hostEl = document.createElement('div');
+    hostEl.id = 'agentation-host';
+    document.body.appendChild(hostEl);
+  }
 
-    const root = createRoot(hostEl);
-    root.render(
-      createElement(Agentation, {
-        endpoint: 'http://localhost:4747',
-        appName: document.title || 'Helpdesk Dashboard',
-        identifyingAttributes: ['data-attr', 'data-testid', 'data-qa', 'id']
-      })
-    );
-  }).catch(() => {
-    // Ignore if agentation is not needed
-  });
+  const root = createRoot(hostEl);
+  root.render(
+    createElement(Agentation, {
+      endpoint: 'http://localhost:4747',
+      appName: document.title || 'Helpdesk Dashboard',
+      identifyingAttributes: ['data-attr', 'data-testid', 'data-qa', 'id']
+    })
+  );
+}
+
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', mountAgentationToolbar);
+} else {
+  mountAgentationToolbar();
 }
