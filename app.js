@@ -916,9 +916,28 @@ function initDashboard() {
     const nextTheme = html.getAttribute('data-bs-theme') === 'dark' ? 'light' : 'dark';
     html.setAttribute('data-bs-theme', nextTheme);
     const icon = document.getElementById('themeIcon');
-    icon.className = nextTheme === 'dark' ? 'bi bi-sun-fill' : 'bi bi-moon-stars';
+    icon.className = nextTheme === 'dark' ? 'bi bi-sun-fill me-1' : 'bi bi-moon-stars me-1';
     renderDashboard();
   });
+
+  // Burbuja flotante de opciones (3 puntos verticales en esquina inferior izquierda)
+  const bubbleToggleBtn = document.getElementById('btnBsFloatingBubbleToggle');
+  const bubblePanelEl = document.getElementById('bsBubblePanel');
+  const bubbleIconEl = document.getElementById('bsBubbleIcon');
+  if (bubbleToggleBtn && bubblePanelEl) {
+    bubbleToggleBtn.addEventListener('click', () => {
+      const isExpanded = bubbleToggleBtn.getAttribute('aria-expanded') === 'true';
+      const nextExpanded = !isExpanded;
+      bubbleToggleBtn.setAttribute('aria-expanded', String(nextExpanded));
+      if (nextExpanded) {
+        bubblePanelEl.removeAttribute('hidden');
+        if (bubbleIconEl) bubbleIconEl.className = 'bi bi-x-lg fs-md';
+      } else {
+        bubblePanelEl.setAttribute('hidden', '');
+        if (bubbleIconEl) bubbleIconEl.className = 'bi bi-three-dots-vertical fs-md';
+      }
+    });
+  }
 
   renderDashboard();
 }
