@@ -14,7 +14,7 @@
       "react/jsx-runtime": "https://esm.sh/react@18.3.1/jsx-runtime",
       "react-dom": "https://esm.sh/react-dom@18.3.1",
       "react-dom/client": "https://esm.sh/react-dom@18.3.1/client",
-      "agentation": "/node_modules/agentation/dist/index.mjs"
+      "agentation": "https://esm.sh/agentation@3.1.2?external=react,react-dom"
     }
   }
   </script>
@@ -150,10 +150,10 @@
           </button>
 
           <!-- Enlaces para Comparar con el Nuevo Dashboard (DESIGN.md + AGENTS.md) -->
-          <a href="/design-system/dashboard.html" class="btn-subtle btn-sm theme-primary text-decoration-none">
+          <a href="./design-system/dashboard.html" class="btn-subtle btn-sm theme-primary text-decoration-none">
             <i class="bi bi-grid-1x2 me-1"></i>Ver Versión DESIGN.md
           </a>
-          <a href="/comparador.html" class="btn-solid btn-sm theme-primary text-decoration-none">
+          <a href="./comparador.html" class="btn-solid btn-sm theme-primary text-decoration-none">
             <i class="bi bi-layout-split me-1"></i>Comparar
           </a>
 
@@ -574,7 +574,7 @@
   <!-- Lógica de Datos, Filtros, KPIs y Gráficos -->
   <script type="module" src="./app.js"></script>
 
-  <!-- Agentation Visual Feedback Toolbar (conectado a http://localhost:4747) -->
-  <script type="module" src="/agentation-mount.js"></script>
+  <!-- Agentation Visual Feedback Toolbar -->
+  <script type="module" src="./agentation-mount.js"></script>
 </body>
 </html>

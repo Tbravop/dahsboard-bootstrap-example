@@ -1,8 +1,8 @@
 // ============================================================================
-// Agentation Visual Feedback Toolbar Mount (Served from http://localhost:3000)
+// Agentation Visual Feedback Toolbar Mount
+// Works both on localhost (with MCP sync) and on GitHub Pages (standalone)
 // ============================================================================
 
-// Polyfill process.env.NODE_ENV required by agentation/dist/index.mjs in browser ESM
 window.process = window.process || { env: { NODE_ENV: 'development' } };
 
 import { createElement } from 'react';
@@ -17,10 +17,14 @@ function mountAgentationToolbar() {
     document.body.appendChild(hostEl);
   }
 
+  const isLocal =
+    window.location.hostname === 'localhost' ||
+    window.location.hostname === '127.0.0.1';
+
   const root = createRoot(hostEl);
   root.render(
     createElement(Agentation, {
-      endpoint: 'http://localhost:4747',
+      endpoint: isLocal ? 'http://localhost:4747' : undefined,
       appName: document.title || 'Helpdesk Dashboard',
       identifyingAttributes: ['data-attr', 'data-testid', 'data-qa', 'id']
     })
