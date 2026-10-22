@@ -89,14 +89,14 @@ export function renderKpiSummaryGrid(kpis) {
     <section aria-label="Resumen de KPIs Principales" class="ds-kpi-strip" data-drag-scroll="true">
       ${cards.map(c => `
         <article class="ds-kpi-item ds-surface-card" data-attr="${c.id}">
-          <div style="display: flex; align-items: center; justify-content: space-between; gap: var(--space-xs);">
-            <span class="ds-small ds-muted" style="font-weight: 600;">${c.title}</span>
-            <span style="color: var(--color-brand-primary);">${renderIconSvg(c.icon)}</span>
+          <div class="ds-kpi-header">
+            <span class="ds-small ds-muted ds-kpi-title" title="${c.title}">${c.title}</span>
+            <span class="ds-kpi-icon">${renderIconSvg(c.icon)}</span>
           </div>
-          <div class="ds-h2" translate="no">${c.metricValue}</div>
+          <div class="ds-h2 ds-kpi-metric" translate="no">${c.metricValue}</div>
           <div class="ds-kpi-footer">
             ${c.badge}
-            <span class="ds-small ds-muted">
+            <span class="ds-small ds-muted ds-kpi-target">
               <span>${c.targetLabel} </span>
               <strong translate="no">${c.targetValue}</strong>
             </span>

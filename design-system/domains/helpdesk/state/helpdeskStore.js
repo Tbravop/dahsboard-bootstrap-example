@@ -111,9 +111,17 @@ export function setInspectedTicketId(ticketId) {
   notify();
 }
 
-export function toggleHelpdeskTheme() {
-  state.theme = state.theme === 'dark' ? 'light' : 'dark';
+export function setHelpdeskTheme(nextTheme) {
+  if (nextTheme !== 'dark' && nextTheme !== 'light') return;
+  if (state.theme === nextTheme && document.documentElement.getAttribute('data-theme') === nextTheme) return;
+  state.theme = nextTheme;
   document.documentElement.setAttribute('data-theme', state.theme);
   localStorage.setItem(STORAGE_THEME_KEY, state.theme);
   notify();
+}
+
+export function toggleHelpdeskTheme() {
+  const nextTheme = state.theme === 'dark' ? 'light' : 'dark';
+  setHelpdeskTheme(nextTheme);
+  return nextTheme;
 }

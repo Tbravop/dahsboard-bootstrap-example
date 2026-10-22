@@ -910,15 +910,68 @@ function initDashboard() {
 
   document.getElementById('btnExportCsv').addEventListener('click', exportFilteredCsv);
 
-  // Conmutador de Tema Light/Dark de Bootstrap 6 (`data-bs-theme`)
+  // Conmutador de Tema Light/Dark de Bootstrap 6 (`data-bs-theme`) sincronizado con DESIGN.md / Comparador
+  const applyBsTheme = nextTheme => {
+    if (nextTheme !== 'dark' && nextTheme !== 'light') return;
+    const html = document.documentElement;
+    html.setAttribute('data-bs-theme', nextTheme);
+    localStorage.setItem('helpdesk_ds_theme_v1', nextTheme);
+    const icon = document.getElementById('themeIcon');
+    if (icon) {
+      icon.className = nextTheme === 'dark' ? 'bi bi-sun-fill me-1' : 'bi bi-moon-stars me-1';
+    }
+    renderDashboard();
+  };
+
+  const savedTheme = localStorage.getItem('helpdesk_ds_theme_v1') || 'light';
+  document.documentElement.setAttribute('data-bs-theme', savedTheme);
+  const initialIcon = document.getElementById('themeIcon');
+  if (initialIcon) {
+    initialIcon.className = savedTheme === 'dark' ? 'bi bi-sun-fill me-1' : 'bi bi-moon-stars me-1';
+  }
+
   document.getElementById('btnThemeToggle').addEventListener('click', () => {
     const html = document.documentElement;
     const nextTheme = html.getAttribute('data-bs-theme') === 'dark' ? 'light' : 'dark';
-    html.setAttribute('data-bs-theme', nextTheme);
-    const icon = document.getElementById('themeIcon');
-    icon.className = nextTheme === 'dark' ? 'bi bi-sun-fill' : 'bi bi-moon-stars';
-    renderDashboard();
+    applyBsTheme(nextTheme);
+    if (window.self !== window.top) {
+      window.parent.postMessage({ type: 'HELPDESK_SYNC_THEME', theme: nextTheme }, '*');
+    }
   });
+
+  if (window.self !== window.top) {
+    document.getElementById('bsNavOpenComparator')?.setAttribute('hidden', '');
+    document.getElementById('bsNavSwitchBootstrap')?.removeAttribute('hidden');
+    const dsSwitchEl = document.getElementById('bsNavSwitchDesignSystem');
+    if (dsSwitchEl) {
+      dsSwitchEl.className = 'btn-solid btn-sm theme-primary text-decoration-none text-center';
+    }
+  }
+
+  window.addEventListener('message', e => {
+    if (e.data && e.data.type === 'HELPDESK_APPLY_THEME') {
+      applyBsTheme(e.data.theme);
+    }
+  });
+
+  // Burbuja flotante de opciones (3 puntos verticales en esquina inferior izquierda)
+  const bubbleToggleBtn = document.getElementById('btnBsFloatingBubbleToggle');
+  const bubblePanelEl = document.getElementById('bsBubblePanel');
+  const bubbleIconEl = document.getElementById('bsBubbleIcon');
+  if (bubbleToggleBtn && bubblePanelEl) {
+    bubbleToggleBtn.addEventListener('click', () => {
+      const isExpanded = bubbleToggleBtn.getAttribute('aria-expanded') === 'true';
+      const nextExpanded = !isExpanded;
+      bubbleToggleBtn.setAttribute('aria-expanded', String(nextExpanded));
+      if (nextExpanded) {
+        bubblePanelEl.removeAttribute('hidden');
+        if (bubbleIconEl) bubbleIconEl.className = 'bi bi-x-lg fs-md';
+      } else {
+        bubblePanelEl.setAttribute('hidden', '');
+        if (bubbleIconEl) bubbleIconEl.className = 'bi bi-three-dots-vertical fs-md';
+      }
+    });
+  }
 
   renderDashboard();
 }
