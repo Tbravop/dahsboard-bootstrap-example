@@ -563,7 +563,7 @@
        BURBUJA FLOTANTE INFERIOR IZQUIERDA (3 Puntos: Tema + Navegación)
        ======================================================================== -->
   <aside class="bs-floating-bubble" aria-label="Controles de vista y comparación">
-    <div class="bs-bubble-panel" id="bsBubblePanel" role="dialog" aria-label="Opciones de vista">
+    <div class="bs-bubble-panel" id="bsBubblePanel" role="dialog" aria-label="Opciones de vista" hidden>
       <div class="d-flex align-items-center justify-content-between">
         <span class="fs-xs fw-bold text-uppercase fg-secondary">Apariencia</span>
         <button
@@ -572,29 +572,32 @@
           class="btn-outline btn-sm theme-secondary d-inline-flex align-items-center gap-1"
           aria-label="Cambiar modo de color">
           <i class="bi bi-moon-stars" id="themeIcon"></i>
-          <span>Dark / Light</span>
+          <span>Modo Oscuro / Claro</span>
         </button>
       </div>
       <hr class="my-1">
       <div class="d-flex flex-column gap-2">
-        <span class="fs-xs fw-bold text-uppercase fg-secondary">Cambiar de Vista</span>
-        <a href="./design-system/dashboard.html" class="btn-subtle btn-sm theme-primary text-decoration-none text-center">
+        <span class="fs-xs fw-bold text-uppercase fg-secondary">Cambiar Vista / Comparar</span>
+        <a href="./index.html" target="_top" id="bsNavSwitchBootstrap" hidden class="btn-subtle btn-sm theme-primary text-decoration-none text-center">
+          Ver Versión Bootstrap 6
+        </a>
+        <a href="./design-system/dashboard.html" target="_top" id="bsNavSwitchDesignSystem" class="btn-subtle btn-sm theme-primary text-decoration-none text-center">
           <i class="bi bi-grid-1x2 me-1"></i>Ver Versión DESIGN.md
         </a>
-        <a href="./comparador.html" class="btn-solid btn-sm theme-primary text-decoration-none text-center">
-          <i class="bi bi-layout-split me-1"></i>Abrir Comparador Lado a Lado
+        <a href="./comparador.html" target="_top" id="bsNavOpenComparator" class="btn-solid btn-sm theme-primary text-decoration-none text-center">
+          <i class="bi bi-layout-split me-1"></i>Comparar Lado a Lado
         </a>
       </div>
     </div>
     <button
       type="button"
-      class="bs-bubble-trigger"
+      class="btn-solid theme-primary bs-bubble-trigger"
       id="btnBsFloatingBubbleToggle"
       aria-expanded="false"
       aria-controls="bsBubblePanel"
       aria-label="Abrir opciones de vista y tema"
       title="Opciones de vista y comparación">
-      <i class="bi bi-three-dots-vertical fs-md"></i>
+      <i class="bi bi-three-dots-vertical fs-md" id="bsBubbleIcon"></i>
     </button>
   </aside>
 

@@ -104,7 +104,7 @@
     </main>
 
     <!-- ======================================================================
-         BURBUJA FLOTANTE ESQUINA INFERIOR DERECHA (3 Puntos Verticales)
+         BURBUJA FLOTANTE ESQUINA INFERIOR IZQUIERDA (3 Puntos Verticales)
          ====================================================================== -->
     <aside class="ds-floating-bubble" aria-label="Menú rápido de estados, tema y versiones">
       <div class="ds-bubble-panel" id="dsBubblePanel" hidden>
@@ -145,10 +145,13 @@
           <span class="ds-small ds-muted" style="font-weight: 700; text-transform: uppercase;">
             Cambiar Vista / Comparar
           </span>
-          <a href="../index.html" class="ds-btn" style="text-decoration: none;" data-attr="nav-switch-bootstrap">
+          <a href="../index.html" target="_top" class="ds-btn" id="navSwitchBootstrap" style="text-decoration: none;" data-attr="nav-switch-bootstrap">
             <span>Ver Versión Bootstrap 6</span>
           </a>
-          <a href="../comparador.html" class="ds-btn ds-btn-primary" style="text-decoration: none;" data-attr="nav-open-comparator">
+          <a href="./dashboard.html" target="_top" class="ds-btn ds-btn-primary" id="navSwitchDesignSystem" hidden style="text-decoration: none;" data-attr="nav-switch-design-system">
+            <span>Ver Versión DESIGN.md</span>
+          </a>
+          <a href="../comparador.html" target="_top" class="ds-btn ds-btn-primary" id="navOpenComparator" style="text-decoration: none;" data-attr="nav-open-comparator">
             <span>Comparar Lado a Lado</span>
           </a>
         </div>

@@ -11,6 +11,7 @@ import {
   getHelpdeskState,
   loadHelpdeskTelemetry,
   resetHelpdeskFilters,
+  setHelpdeskTheme,
   setInspectedTicketId,
   subscribeHelpdeskStore,
   toggleHelpdeskTheme,
@@ -227,29 +228,28 @@ export function mountHelpdeskDashboardApp(rootElement) {
         const step = items[1].offsetLeft - items[0].offsetLeft;
         if (step <= 0) return;
 
-        const rawIndex = (scrollEl.scrollLeft / maxScroll) * 3;
+        const visibleFullCards = Math.max(1, Math.min(5, Math.floor((scrollEl.clientWidth - 24) / step)));
+        const maxGroupIndex = Math.max(1, items.length - visibleFullCards);
+
+        const rawIndex = (scrollEl.scrollLeft / maxScroll) * maxGroupIndex;
         let groupIndex;
         if (lastScrollDelta > 12) {
-          groupIndex = Math.min(3, Math.ceil(rawIndex - 0.25));
+          groupIndex = Math.min(maxGroupIndex, Math.ceil(rawIndex - 0.25));
         } else if (lastScrollDelta < -12) {
           groupIndex = Math.max(0, Math.floor(rawIndex + 0.25));
         } else {
           groupIndex = Math.round(rawIndex);
         }
-        groupIndex = Math.max(0, Math.min(3, groupIndex));
+        groupIndex = Math.max(0, Math.min(maxGroupIndex, groupIndex));
 
         let targetScroll;
         if (groupIndex === 0) {
-          // Cards 0, 1, 2 full; Card 3 cut .22 on the right
           targetScroll = 0;
-        } else if (groupIndex === 3) {
-          // Cards 3, 4, 5 full; Card 2 cut .22 on the left
+        } else if (groupIndex === maxGroupIndex) {
           targetScroll = maxScroll;
         } else if (lastScrollDelta < 0) {
-          // Dragging back left: align 3 visible cards to the right, .22 cut on the left
-          targetScroll = maxScroll - (3 - groupIndex) * step;
+          targetScroll = maxScroll - (maxGroupIndex - groupIndex) * step;
         } else {
-          // Dragging forward right: align 3 visible cards to the left, .22 cut on the right
           targetScroll = items[groupIndex].offsetLeft - items[0].offsetLeft;
         }
 
@@ -377,7 +377,22 @@ export function mountHelpdeskDashboardApp(rootElement) {
   });
 
   rootElement.querySelector('#btnToggleDsTheme')?.addEventListener('click', () => {
-    toggleHelpdeskTheme();
+    const nextTheme = toggleHelpdeskTheme();
+    if (window.self !== window.top) {
+      window.parent.postMessage({ type: 'HELPDESK_SYNC_THEME', theme: nextTheme }, '*');
+    }
+  });
+
+  // Synchronize theme & navigation buttons when embedded inside comparador.html
+  if (window.self !== window.top) {
+    rootElement.querySelector('#navOpenComparator')?.setAttribute('hidden', '');
+    rootElement.querySelector('#navSwitchDesignSystem')?.removeAttribute('hidden');
+  }
+
+  window.addEventListener('message', e => {
+    if (e.data && e.data.type === 'HELPDESK_APPLY_THEME') {
+      setHelpdeskTheme(e.data.theme);
+    }
   });
 
   // Switch sticky filter bar dropdowns & buttons to compact "small" version on scroll down

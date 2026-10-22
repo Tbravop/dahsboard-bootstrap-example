@@ -231,12 +231,13 @@ body {
 }
 
 /* ==========================================================================
-   KPI HORIZONTAL DRAG STRIP (< 1240px shows 3 full cards + peek of 4th,
-   full-bleed across shell padding so cards are not clipped by inner container walls)
+   KPI HORIZONTAL DRAG STRIP (shows 3 full cards + peek of 4th, with delimited
+   min-width = 276px and uniform 3-row height proportions across all KPI cards)
    ========================================================================== */
 .ds-kpi-strip {
   display: flex;
   flex-wrap: nowrap;
+  align-items: stretch;
   gap: var(--space-md);
   margin-block-start: -6px;
   padding-block: 6px;
@@ -263,13 +264,20 @@ body {
 
 .ds-kpi-strip > .ds-kpi-item {
   flex: 0 0 calc((100% - (3 * var(--space-md))) / 3.22);
-  min-inline-size: 180px;
+  min-inline-size: 276px;
+  min-width: 276px;
+  min-block-size: 136px;
+  height: auto;
+  display: grid;
+  grid-template-rows: 1.5rem 1fr auto;
+  align-items: center;
+  gap: var(--space-xs);
 }
 
-@container workspace-shell (min-width: 1240px) {
+@container workspace-shell (min-width: 1740px) {
   .ds-kpi-strip {
     display: grid;
-    grid-template-columns: repeat(6, minmax(0, 1fr));
+    grid-template-columns: repeat(6, minmax(276px, 1fr));
     margin-inline: 0;
     padding-inline: 0;
     overflow-x: visible;
@@ -278,17 +286,51 @@ body {
   }
 
   .ds-kpi-strip > .ds-kpi-item {
-    min-inline-size: 0;
+    min-inline-size: 276px;
+    min-width: 276px;
   }
+}
+
+.ds-kpi-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-xs);
+  min-inline-size: 0;
+}
+
+.ds-kpi-title {
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.ds-kpi-icon {
+  color: var(--color-brand-primary);
+  flex-shrink: 0;
+  display: inline-flex;
+}
+
+.ds-kpi-metric {
+  white-space: nowrap;
+  line-height: 1.15;
 }
 
 .ds-kpi-footer {
   display: flex;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
   align-items: center;
   justify-content: space-between;
   gap: var(--space-xs);
-  margin-block-start: auto;
+  white-space: nowrap;
+  min-inline-size: 0;
+}
+
+.ds-kpi-target {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 /* ==========================================================================
@@ -732,8 +774,9 @@ body {
   transition: opacity var(--duration-sm) var(--ease-out), transform var(--duration-sm) var(--ease-out);
 }
 
-.ds-bubble-panel[hidden] {
-  display: none;
+.ds-bubble-panel[hidden],
+.ds-btn[hidden] {
+  display: none !important;
 }
 
 /* Native Dialog Modal */
